@@ -1,15 +1,29 @@
-Router.configure(
-    layoutTemplate: "layout",
-    loadingTemplate: "loading",
-    notFoundTemplate: "notFound",
-    waitOn = -> Meteor.subscribe("posts"))
+Router.configure
+  layoutTemplate: "layout"
+  loadingTemplate: "loading"
+  notFoundTemplate: "notFound"
+  waitOn: ->
+    Meteor.subscribe "posts"
 
 Router.route "/",
-    name: "postsList"
+  name: "postsList"
+
 Router.route "/posts/:_id",
+  name: "postPage"
+  data: ->
+    Posts.findOne @params._id
 
-    name: "postPage",
-    data: ->
-        Posts.findOne @params._id
+Router.route "/submit",
+  name: "postSubmit"
 
-Router.onBeforeAction("dataNotFound", only: "postPage")
+requireLogin = ->
+  unless Meteor.user()
+    @render "accessDenied"
+  else
+    @next()
+
+Router.onBeforeAction "dataNotFound",
+  only: "postPage"
+
+Router.onBeforeAction requireLogin,
+  only: "postSubmit"
