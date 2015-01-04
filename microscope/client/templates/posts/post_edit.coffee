@@ -1,22 +1,25 @@
 Template.postEdit.events
-    'submit form': (e) ->
+    "submit form": (e) ->
         e.preventDefault()
 
-        currentPostId = @._id
+        currentPostId = @_id
         postProperties =
-            url: $(e.target).find('[name=url]').val()
-            title: $(e.target).find('[name=title]').val()
+            url: $(e.target).find("[name=url]").val()
+            title: $(e.target).find("[name=title]").val()
 
-        Posts.update(currentPostId, {$set: postProperties},(error)->
+        Posts.update currentPostId,
+            $set: postProperties,
+            (error)->
             if error
-                alert(error.reason)
+                throwError(error.reason)
             else
-                Router.go('postPage', {_id: currentPostId}))
+                Router.go "postPage",
+                  _id: currentPostId
 
-        'click .delete':(e) ->
+        "click .delete":(e) ->
             e.preventDefault()
 
             if confirm("Delete this post?")
-                currentPostId = @._id
-                Posts.remove(currentPostId)
-                Router.go('postsList')
+                currentPostId = @_id
+                Posts.remove currentPostId
+                Router.go "postsList"

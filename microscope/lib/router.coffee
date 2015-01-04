@@ -13,17 +13,22 @@ Router.route "/posts/:_id",
   data: ->
     Posts.findOne @params._id
 
+Router.route "/posts/:_id/edit",
+  name: "postEdit"
+  data: ->
+    Posts.findOne @params._id
+
 Router.route "/submit",
   name: "postSubmit"
 
 requireLogin = ->
-    if !Meteor.user()
-        if Meteor.loggingIn()
-            @render(@loadingTemplate)
-        else
-            @render('accessDenied')
+  unless Meteor.user()
+    if Meteor.loggingIn()
+      @render @loadingTemplate
     else
-        @next()
+      @render "accessDenied"
+  else
+    @next()
 
 Router.onBeforeAction "dataNotFound",
   only: "postPage"
