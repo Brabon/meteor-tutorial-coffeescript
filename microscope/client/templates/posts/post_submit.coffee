@@ -1,15 +1,27 @@
-Template.postSubmit.events
-    "submit form": (e) ->
-        e.preventDefault()
+Template.postSubmit.created = ->
+  Session.set "postSubmitErrors", {}
 
-        post =
-            url: $(e.target).find("[name=url]").val()
-            title: $(e.target).find("[name=title]").val()
+Template.postSubmit.helpers
+  errorMessage: (field) ->
+    Session.get("postSubmitErrors")[field]
 
-        Meteor.call "postInsert", post, (error,result) ->
-            return throwError(error.reason) if error
+  errorClass: (field) ->
+    (if !!Session.get("postSubmitErrors")[field] then "has-error" else "")
 
-            throwError("This link has already been posted") if result.postExists
+Template.postSubmit.events "submit form": (e) ->
+  e.preventDefault()
+  post =
+    url: $(e.target).find("[name=url]").val()
+    title: $(e.target).find("[name=title]").val()
 
-            Router.go "postPage",
-                _id: result._id
+  errors = validatePost(post)
+  return Session.set("postSubmitErrors", errors)  if errors.title or errors.url
+  Meteor.call "postInsert", post, (error, result) ->
+
+    # display the error to the user and abort
+    return throwError(error.reason)  if error
+
+    # show this result but route anyway
+    throwError "This link has already been posted"  if result.postExists
+    Router.go "postPage",
+      _id: result._id

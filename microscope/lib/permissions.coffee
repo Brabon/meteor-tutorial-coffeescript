@@ -1,2 +1,2 @@
-ownsDocument = (userId,doc) ->
-  doc && doc.userId == userId
+ownsDocument = (userId, doc) ->
+  doc and doc.userId is userId
